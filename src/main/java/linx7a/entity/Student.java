@@ -1,4 +1,4 @@
-    package linx7a;
+    package linx7a.entity;
 
     import jakarta.persistence.*;
 
