@@ -1,8 +1,12 @@
 package linx7a;
 
+import linx7a.entity.Student;
+import linx7a.service.StudentService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,8 +14,13 @@ public class Main {
                 new AnnotationConfigApplicationContext("linx7a");
 
         SessionFactory sessionFactory = context.getBean(SessionFactory.class);
-        Session session = sessionFactory.openSession();
+        StudentService studentService = context.getBean(StudentService.class);
 
-        session.close();
+        Student saved = studentService.saveStudent(
+                new Student("Анна", "Иванова", "anna@example.com", LocalDate.now())
+        );
+        System.out.println("Сохранён студент с id = " + saved.getId());
+
+        context.close();
     }
 }
