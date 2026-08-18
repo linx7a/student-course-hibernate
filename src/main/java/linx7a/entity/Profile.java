@@ -15,14 +15,18 @@ public class Profile {
 
     @Column(name = "bio")
     private String bio;
+    @OneToOne
+    @JoinColumn(name = "student_id", referencedColumnName = "id")
+    private Student student;
 
     public Profile() {
     }
 
-    public Profile(String phoneNumber, String address, String bio) {
+    public Profile(String phoneNumber, String address, String bio, Student student) {
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.bio = bio;
+        this.student = student;
     }
 
     public Long getId() {
@@ -55,6 +59,14 @@ public class Profile {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
     @Override

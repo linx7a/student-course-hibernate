@@ -20,6 +20,8 @@
         private LocalDate enrollmentDate;
         public Student() {
         }
+        @OneToOne(mappedBy = "student", cascade = CascadeType.ALL)
+        private Profile profile;
 
         public Student(String firstName, String lastName, String email, LocalDate enrollmentDate) {
             this.firstName = firstName;
@@ -65,6 +67,14 @@
 
         public void setEnrollmentDate(LocalDate enrollmentDate) {
             this.enrollmentDate = enrollmentDate;
+        }
+
+        public Profile getProfile() {
+            return profile;
+        }
+
+        public void setProfile(Profile profile) {
+            this.profile = profile;
         }
 
         @Override

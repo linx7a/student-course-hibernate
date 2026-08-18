@@ -20,87 +20,21 @@ public class Main {
                 new AnnotationConfigApplicationContext("linx7a");
 
         SessionFactory sessionFactory = context.getBean(SessionFactory.class);
-
-        //Student
         StudentService studentService = context.getBean(StudentService.class);
-
-        Student student = studentService.saveStudent(
-                new Student("Анна", "Иванова", "anna.test@example.com", LocalDate.now())
-        );
-        System.out.println("Создан студент: " + student);
-
-        Student foundStudent = studentService.getById(student.getId());
-        System.out.println("Найден студент по id: " + foundStudent);
-
-        foundStudent.setLastName("Петрова");
-        Student updatedStudent = studentService.updateStudent(foundStudent);
-        System.out.println("Обновлён студент: " + updatedStudent);
-
-        System.out.println("Все студенты: " + studentService.findAll());
-
-        studentService.deleteStudent(student.getId());
-        System.out.println("Студент удалён, попытка найти снова: " + studentService.getById(student.getId()));
-
-        //Profile
         ProfileService profileService = context.getBean(ProfileService.class);
 
-        Profile profile = profileService.saveProfile(
-                new Profile("+79991234567", "Москва, ул. Ленина 1", "Люблю программирование")
-        );
-        System.out.println("Создан профиль: " + profile);
+        Student student = new Student("Пельмень", "Огурцов", "pelmen" + System.currentTimeMillis() + "@example.com", LocalDate.now());
+        Profile profile = new Profile("+7999" + (System.currentTimeMillis() % 10000000), "Москва, диван у окна", "Профессионально прокрастинирую", student);
 
-        Profile foundProfile = profileService.getById(profile.getId());
-        System.out.println("Найден профиль по id: " + foundProfile);
+        student.setProfile(profile);
+        profile.setStudent(student);
 
-        foundProfile.setAddress("Москва, ул. Пушкина 10");
-        Profile updatedProfile = profileService.updateProfile(foundProfile);
-        System.out.println("Обновлён профиль: " + updatedProfile);
+        Student savedStudent = studentService.saveStudent(student);
+        System.out.println("Студент сохранен: " + savedStudent);
+        System.out.println("Профиль каскадом: " + savedStudent.getProfile());
 
-        System.out.println("Все профили: " + profileService.findAll());
+        Student found = studentService.getById(savedStudent.getId());
+        System.out.println("Найден студент с профилем: " + found.getProfile());
 
-        profileService.deleteProfile(profile.getId());
-        System.out.println("Профиль удалён, попытка найти снова: " + profileService.getById(profile.getId()));
-
-        //Instructor
-        InstructorService instructorService = context.getBean(InstructorService.class);
-
-        Instructor instructor = instructorService.saveInstructor(
-                new Instructor("Иван", "Петров", "Java")
-        );
-        System.out.println("Создан преподаватель: " + instructor);
-
-        Instructor foundInstructor = instructorService.getById(instructor.getId());
-        System.out.println("Найден преподаватель по id: " + foundInstructor);
-
-        foundInstructor.setSpecialization("Java / Spring");
-        Instructor updatedInstructor = instructorService.updateInstructor(foundInstructor);
-        System.out.println("Обновлён преподаватель: " + updatedInstructor);
-
-        System.out.println("Все преподаватели: " + instructorService.findAll());
-
-        //Course
-        CourseService courseService = context.getBean(CourseService.class);
-
-        Course course = courseService.saveCourse(
-                new Course("Java Core", "Основы Java", LocalDate.now())
-        );
-        System.out.println("Создан курс: " + course);
-
-        Course foundCourse = courseService.getById(course.getId());
-        System.out.println("Найден курс по id: " + foundCourse);
-
-        foundCourse.setDescription("Основы Java и ООП");
-        Course updatedCourse = courseService.updateCourse(foundCourse);
-        System.out.println("Обновлён курс: " + updatedCourse);
-
-        System.out.println("Все курсы: " + courseService.findAll());
-
-        courseService.deleteCourse(course.getId());
-        System.out.println("Курс удалён, попытка найти снова: " + courseService.getById(course.getId()));
-
-        instructorService.deleteInstructor(instructor.getId());
-        System.out.println("Преподаватель удалён");
-
-        context.close();
     }
 }
