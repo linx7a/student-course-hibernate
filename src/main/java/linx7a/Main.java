@@ -15,12 +15,5 @@ public class Main {
 
         SessionFactory sessionFactory = context.getBean(SessionFactory.class);
         StudentService studentService = context.getBean(StudentService.class);
-
-        Student saved = studentService.saveStudent(
-                new Student("Анна", "Иванова", "anna@example.com", LocalDate.now())
-        );
-        System.out.println("Сохранён студент с id = " + saved.getId());
-
-        context.close();
     }
 }
