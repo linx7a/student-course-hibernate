@@ -1,60 +1,79 @@
-    package linx7a.service;
+package linx7a.service;
 
-    import linx7a.entity.Course;
-    import org.hibernate.Session;
-    import org.hibernate.SessionFactory;
-    import org.springframework.stereotype.Service;
+import linx7a.entity.Course;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.stereotype.Service;
 
-    import java.util.List;
+import java.util.List;
 
-    @Service
-    public class CourseService {
-        private final SessionFactory sessionFactory;
+@Service
+public class CourseService {
+    private final SessionFactory sessionFactory;
 
-        public CourseService(SessionFactory sessionFactory) {
-            this.sessionFactory = sessionFactory;
-        }
+    public CourseService(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
-        public Course saveCourse(Course course) {
-            Session session = sessionFactory.openSession();
-            session.beginTransaction();
+    public Course saveCourse(Course course) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.persist(course);
-            session.getTransaction().commit();
-            session.close();
+            transaction.commit();
             return course;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
         }
+    }
 
-        public void deleteCourse(Long id) {
-            Session session = sessionFactory.openSession();
-            session.beginTransaction();
+    public void deleteCourse(Long id) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             Course course = session.find(Course.class, id);
             session.remove(course);
-            session.getTransaction().commit();
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
         }
+    }
 
-        public Course getById(Long id) {
-            Session session = sessionFactory.openSession();
+    public Course getById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
             Course course = session.find(Course.class, id);
-            session.close();
-            return course;
-        }
-
-        public List<Course> findAll() {
-            Session session = sessionFactory.openSession();
-            List<Course> allCourses = session
-                    .createQuery("SELECT c FROM Course c", Course.class)
-                    .list();
-            session.close();
-            return allCourses;
-        }
-
-        public Course updateCourse(Course course) {
-            Session session = sessionFactory.openSession();
-            session.beginTransaction();
-            course = session.merge(course);
-            session.getTransaction().commit();
-            session.close();
             return course;
         }
     }
+
+    public List<Course> findAll() {
+        try (Session session = sessionFactory.openSession()) {
+            List<Course> allCourses = session
+                    .createQuery("SELECT c FROM Course c", Course.class)
+                    .list();
+            return allCourses;
+        }
+    }
+
+    public Course updateCourse(Course course) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            course = session.merge(course);
+            transaction.commit();
+            return course;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+}
