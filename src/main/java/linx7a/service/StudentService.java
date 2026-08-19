@@ -3,6 +3,7 @@ package linx7a.service;
 import linx7a.entity.Student;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,45 +17,65 @@ public class StudentService {
     }
 
     public Student saveStudent(Student student) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.persist(student);
-        session.getTransaction().commit();
-        session.close();
-        return student;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(student);
+            transaction.commit();
+            return student;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+
     }
 
     public void deleteStudent(Long id) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Student studentForDelete = session.find(Student.class, id);
-        session.remove(studentForDelete);
-        session.getTransaction().commit();
-        session.close();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            Student studentForDelete = session.find(Student.class, id);
+            session.remove(studentForDelete);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+
     }
 
     public Student getById(Long id) {
-        Session session = sessionFactory.openSession();
-        Student student = session.find(Student.class, id);
-        session.close();
-        return student;
+        try (Session session = sessionFactory.openSession()) {
+            Student student = session.find(Student.class, id);
+            return student;
+        }
     }
 
     public List<Student> findAll() {
-        Session session = sessionFactory.openSession();
-        List<Student> allStudents = session
-                .createQuery("SELECT s FROM Student s", Student.class)
-                .list();
-        session.close();
-        return allStudents;
+        try (Session session = sessionFactory.openSession()) {
+            List<Student> allStudents = session
+                    .createQuery("SELECT s FROM Student s", Student.class)
+                    .list();
+            return allStudents;
+        }
     }
 
     public Student updateStudent(Student student) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        student = session.merge(student);
-        session.getTransaction().commit();
-        session.close();
-        return student;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            student = session.merge(student);
+            transaction.commit();
+            return student;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }
