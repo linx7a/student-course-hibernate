@@ -1,9 +1,9 @@
 package linx7a.service;
 
-import linx7a.entity.Course;
 import linx7a.entity.Profile;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,45 +17,64 @@ public class ProfileService {
     }
 
     public Profile saveProfile(Profile profile) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.persist(profile);
-        session.getTransaction().commit();
-        session.close();
-        return profile;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(profile);
+            transaction.commit();
+            return profile;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public void deleteProfile(Long id) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Profile profile = session.find(Profile.class, id);
-        session.remove(profile);
-        session.getTransaction().commit();
-        session.close();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            Profile profile = session.find(Profile.class, id);
+            session.remove(profile);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+
     }
 
     public Profile getById(Long id) {
-        Session session = sessionFactory.openSession();
-        Profile profile = session.find(Profile.class, id);
-        session.close();
-        return profile;
+        try (Session session = sessionFactory.openSession()) {
+            Profile profile = session.find(Profile.class, id);
+            return profile;
+        }
     }
 
     public List<Profile> findAll() {
-        Session session = sessionFactory.openSession();
-        List<Profile> allProfiles = session
-                .createQuery("SELECT p FROM Profile p", Profile.class)
-                .list();
-        session.close();
-        return allProfiles;
+        try (Session session = sessionFactory.openSession()) {
+            List<Profile> allProfiles = session
+                    .createQuery("SELECT p FROM Profile p", Profile.class)
+                    .list();
+            return allProfiles;
+        }
     }
 
     public Profile updateProfile(Profile profile) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        profile = session.merge(profile);
-        session.getTransaction().commit();
-        session.close();
-        return profile;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            profile = session.merge(profile);
+            transaction.commit();
+            return profile;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }
