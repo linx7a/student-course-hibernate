@@ -1,5 +1,6 @@
 package linx7a.service;
 
+import linx7a.TransactionHelper;
 import linx7a.entity.Instructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,39 +12,25 @@ import java.util.List;
 @Service
 public class InstructorService {
     private final SessionFactory sessionFactory;
+    private final TransactionHelper transactionHelper;
 
-    public InstructorService(SessionFactory sessionFactory) {
+    public InstructorService(SessionFactory sessionFactory, TransactionHelper transactionHelper) {
         this.sessionFactory = sessionFactory;
+        this.transactionHelper = transactionHelper;
     }
 
     public Instructor saveInstructor(Instructor instructor) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        return transactionHelper.executeInTransaction(session -> {
             session.persist(instructor);
-            transaction.commit();
             return instructor;
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        });
     }
 
     public void deleteInstructor(Long id) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        transactionHelper.executeInTransaction(session -> {
             Instructor instructor = session.find(Instructor.class, id);
             session.remove(instructor);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        });
     }
 
     public Instructor getById(Long id) {
@@ -63,17 +50,8 @@ public class InstructorService {
     }
 
     public Instructor updateInstructor(Instructor instructor) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            instructor = session.merge(instructor);
-            transaction.commit();
-            return instructor;
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        return transactionHelper.executeInTransaction(session -> {
+            return session.merge(instructor);
+        });
     }
 }
