@@ -1,5 +1,6 @@
 package linx7a.service;
 
+import linx7a.TransactionHelper;
 import linx7a.entity.Course;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,40 +12,26 @@ import java.util.List;
 @Service
 public class CourseService {
     private final SessionFactory sessionFactory;
+    private final TransactionHelper transactionHelper;
 
-    public CourseService(SessionFactory sessionFactory) {
+    public CourseService(SessionFactory sessionFactory, TransactionHelper transactionHelper) {
         this.sessionFactory = sessionFactory;
+        this.transactionHelper = transactionHelper;
     }
 
     public Course saveCourse(Course course) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        return transactionHelper.executeInTransaction(session -> {
             session.persist(course);
-            transaction.commit();
             return course;
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        });
     }
 
     public void deleteCourse(Long id) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
+        transactionHelper.executeInTransaction(session -> {
             Course course = session.find(Course.class, id);
             session.remove(course);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
+        });
+}
 
     public Course getById(Long id) {
         try (Session session = sessionFactory.openSession()) {
@@ -63,17 +50,8 @@ public class CourseService {
     }
 
     public Course updateCourse(Course course) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            course = session.merge(course);
-            transaction.commit();
-            return course;
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        return transactionHelper.executeInTransaction(session -> {
+            return session.merge(course);
+        });
     }
 }
