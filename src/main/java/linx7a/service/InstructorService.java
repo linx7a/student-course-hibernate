@@ -3,6 +3,7 @@ package linx7a.service;
 import linx7a.entity.Instructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,44 +17,63 @@ public class InstructorService {
     }
 
     public Instructor saveInstructor(Instructor instructor) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.persist(instructor);
-        session.getTransaction().commit();
-        session.close();
-        return instructor;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(instructor);
+            transaction.commit();
+            return instructor;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public void deleteInstructor(Long id) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Instructor instructor = session.find(Instructor.class, id);
-        session.remove(instructor);
-        session.getTransaction().commit();
-        session.close();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            Instructor instructor = session.find(Instructor.class, id);
+            session.remove(instructor);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public Instructor getById(Long id) {
-        Session session = sessionFactory.openSession();
-        Instructor instructor = session.find(Instructor.class, id);
-        session.close();
-        return instructor;
+        try (Session session = sessionFactory.openSession()) {
+            Instructor instructor = session.find(Instructor.class, id);
+            return instructor;
+        }
     }
+
     public List<Instructor> findAll() {
-        Session session = sessionFactory.openSession();
-        List<Instructor> allInstructors = session
-                .createQuery("SELECT i FROM Instructor i", Instructor.class)
-                .list();
-        session.close();
-        return allInstructors;
+        try (Session session = sessionFactory.openSession()) {
+            List<Instructor> allInstructors = session
+                    .createQuery("SELECT i FROM Instructor i", Instructor.class)
+                    .list();
+            return allInstructors;
+        }
     }
 
     public Instructor updateInstructor(Instructor instructor) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        instructor = session.merge(instructor);
-        session.getTransaction().commit();
-        session.close();
-        return instructor;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            instructor = session.merge(instructor);
+            transaction.commit();
+            return instructor;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }
