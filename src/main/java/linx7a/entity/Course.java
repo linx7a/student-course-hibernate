@@ -19,8 +19,18 @@ public class Course {
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+    @ManyToOne
+    @JoinColumn(name = "instructor_id")
+    private Instructor instructor;
 
     public Course() {
+    }
+
+    public Course(String title, String description, LocalDate startDate, Instructor instructor) {
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.instructor = instructor;
     }
 
     public Course(String title, String description, LocalDate startDate) {
@@ -59,6 +69,14 @@ public class Course {
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
+    }
+
+    public Instructor getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(Instructor instructor) {
+        this.instructor = instructor;
     }
 
     @Override

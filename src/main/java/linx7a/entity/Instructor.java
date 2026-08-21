@@ -2,6 +2,8 @@ package linx7a.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "instructors")
 public class Instructor {
@@ -17,6 +19,8 @@ public class Instructor {
 
     @Column(name = "specialization", nullable = false)
     private String specialization;
+    @OneToMany(mappedBy = "instructor")
+    private List<Course> courseList;
 
     public Instructor() {
     }
@@ -57,6 +61,14 @@ public class Instructor {
 
     public void setSpecialization(String specialization) {
         this.specialization = specialization;
+    }
+
+    public List<Course> getCourseList() {
+        return courseList;
+    }
+
+    public void setCourseList(List<Course> courseList) {
+        this.courseList = courseList;
     }
 
     @Override

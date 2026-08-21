@@ -19,22 +19,20 @@ public class Main {
         AnnotationConfigApplicationContext context =
                 new AnnotationConfigApplicationContext("linx7a");
 
-        SessionFactory sessionFactory = context.getBean(SessionFactory.class);
-        StudentService studentService = context.getBean(StudentService.class);
-        ProfileService profileService = context.getBean(ProfileService.class);
+        InstructorService instructorService = context.getBean(InstructorService.class);
+        CourseService courseService = context.getBean(CourseService.class);
 
-        Student student = new Student("Пельмень", "Огурцов", "pelmen" + System.currentTimeMillis() + "@example.com", LocalDate.now());
-        Profile profile = new Profile("+7999" + (System.currentTimeMillis() % 10000000), "Москва, диван у окна", "Профессионально прокрастинирую", student);
+        Instructor instructor = instructorService.saveInstructor(
+                new Instructor("Иван", "Петров", "Java")
+        );
+        System.out.println("Создан преподаватель: " + instructor);
 
-        student.setProfile(profile);
-        profile.setStudent(student);
+        Course course = courseService.saveCourse(
+                new Course("Java Core", "Основы Java", LocalDate.now(), instructor)
+        );
+        System.out.println("Создан курс: " + course);
 
-        Student savedStudent = studentService.saveStudent(student);
-        System.out.println("Студент сохранен: " + savedStudent);
-        System.out.println("Профиль каскадом: " + savedStudent.getProfile());
-
-        Student found = studentService.getById(savedStudent.getId());
-        System.out.println("Найден студент с профилем: " + found.getProfile());
-
+        Course foundCourse = courseService.getById(course.getId());
+        System.out.println("У курса преподаватель: " + foundCourse.getInstructor());
     }
 }
