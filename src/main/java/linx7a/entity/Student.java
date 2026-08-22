@@ -3,6 +3,8 @@
     import jakarta.persistence.*;
 
     import java.time.LocalDate;
+    import java.util.HashSet;
+    import java.util.Set;
 
     @Entity
     @Table(name = "students")
@@ -23,12 +25,21 @@
         @OneToOne(mappedBy = "student", cascade = CascadeType.ALL)
         private Profile profile;
 
+        @ManyToMany
+        @JoinTable(
+                name = "student_course",
+                joinColumns = @JoinColumn(name = "student_id"),
+                inverseJoinColumns = @JoinColumn(name = "course_id")
+        )
+        private Set<Course> courses = new HashSet<> ();
+
         public Student(String firstName, String lastName, String email, LocalDate enrollmentDate) {
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.enrollmentDate = enrollmentDate;
         }
+
         public Long getId() {
             return id;
         }
@@ -75,6 +86,14 @@
 
         public void setProfile(Profile profile) {
             this.profile = profile;
+        }
+
+        public Set<Course> getCourses() {
+            return courses;
+        }
+
+        public void setCourses(Set<Course> courses) {
+            this.courses = courses;
         }
 
         @Override
