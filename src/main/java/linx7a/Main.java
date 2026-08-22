@@ -34,5 +34,11 @@ public class Main {
 
         Course foundCourse = courseService.getById(course.getId());
         System.out.println("У курса преподаватель: " + foundCourse.getInstructor());
+
+        // Демонстрация LazyInitializationException:
+        // @OneToMany по умолчанию LAZY —> список курсов не подгружается сразу, а только при обращении к нему.
+        //  Если сессия уже закрыта Hibernate, не может сходить в базу за данными, и падает эта ошибка.
+        Instructor foundInstructor = instructorService.getById(instructor.getId());
+        System.out.println("У преподавателя список курсов: " + foundInstructor.getCourseList());
     }
 }
